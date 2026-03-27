@@ -2,3 +2,4 @@
 trips.db
 *.pyc
 pages/__pycache__/
+collector.log
