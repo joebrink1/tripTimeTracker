@@ -1,0 +1,4 @@
+.venv/
+trips.db
+*.pyc
+pages/__pycache__/
