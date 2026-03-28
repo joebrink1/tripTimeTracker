@@ -1,5 +1,6 @@
 .venv/
 trips.db
 *.pyc
+*.egg-info/
 pages/__pycache__/
 collector.log
