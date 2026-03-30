@@ -1,0 +1,16 @@
+/* Sidebar radio buttons */
+#sidebar-radio input[type="radio"]:checked + label {
+    background-color: #80FCFF;
+    color: #000000;
+    border-radius: 6px;
+}
+
+/* Make radio labels look like buttons */
+#sidebar-radio label {
+    display: block;
+    padding: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    background-color: #161D33;
+    border-radius: 6px;
+}

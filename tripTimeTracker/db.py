@@ -2,13 +2,15 @@ import sqlite3
 
 import pandas as pd
 
+DATABASE_NAME = "oldTrips.db"
+
 def insert_record(tripName,
                   timestamp,
                   dow,
                   date_str,
                   time_str,
                   trip_time,
-                  db_path='trips.db'):
+                  db_path=DATABASE_NAME):
     '''
     Docstring Here
     '''
@@ -42,7 +44,7 @@ def insert_record(tripName,
 
 
 
-def query_records(db_path="trips.db", name=None, date=None, dow=None, time=None):
+def query_records(db_path=DATABASE_NAME, name=None, date=None, dow=None, time=None):
     """
     Query trip data from SQLite and return a pandas DataFrame.
     
@@ -86,3 +88,24 @@ def query_records(db_path="trips.db", name=None, date=None, dow=None, time=None)
     df = pd.read_sql_query(query, conn, params=params)
     conn.close()
     return df
+
+def retrieve_tripNames(db_path=DATABASE_NAME):
+    """
+    Query trip names from SQLite
+    
+    Parameters:
+    - db_path (str): Path to SQLite database file.
+    
+    Returns:
+    - List of trip name strings
+    """
+
+    conn = sqlite3.connect(db_path)
+    
+    # Base query
+    query = "SELECT DISTINCT name FROM trips"
+
+    # Execute query into pandas DataFrame
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+    return df.name.tolist()
