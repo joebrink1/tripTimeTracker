@@ -3,6 +3,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 import plotly.express as px
 from tripTimeTracker.db import query_records, retrieve_tripNames
 from tripTimeTracker.analytics import *
@@ -93,7 +94,7 @@ def plot_test_day_forecast(df_original, df_completed):
     # Historical average
     fig.add_trace(go.Scatter(
         x=hist_avg["dt"],
-        y=hist_avg["tripTime"],
+        y=hist_avg["tripTime"]/60,
         mode="lines",
         name="Historical Avg",
         line=dict(dash="dash")
@@ -102,7 +103,7 @@ def plot_test_day_forecast(df_original, df_completed):
     # Actual known
     fig.add_trace(go.Scatter(
         x=actual_known["dt"],
-        y=actual_known["tripTime"],
+        y=actual_known["tripTime"]/60,
         mode="lines+markers",
         name="Actual",
         line=dict(width=3)
@@ -111,7 +112,7 @@ def plot_test_day_forecast(df_original, df_completed):
     # Predicted
     fig.add_trace(go.Scatter(
         x=predicted["dt"],
-        y=predicted["tripTime"],
+        y=predicted["tripTime"]/60,
         mode="lines",
         name="Predicted",
         line=dict(dash="dot")
@@ -140,6 +141,33 @@ def plot_test_day_forecast(df_original, df_completed):
     return fig
 
 
+def plot_historical_trend(df, selected_epoch):
+
+    dow = selected_epoch.strftime('%A')
+    time1 = (selected_epoch - datetime.timedelta(minutes=7)).strftime('%H:%M')
+    time2 = (selected_epoch + datetime.timedelta(minutes=7)).strftime('%H:%M')
+
+    df = df[
+        (df["dow"] == dow) &
+        (df["time"] >= time1) &
+        (df["time"] <= time2)
+    ].groupby("date")["tripTime"].max().reset_index()
+
+    fig = ff.create_distplot([df.tripTime/60], ['Trip Time'], colors=['Red'],
+                            bin_size=1, show_rug=False)
+
+    fig.update_layout(
+        title=f"Travel Time Variability: {selected_epoch.strftime('%H:%M')}",
+        template="plotly_dark",
+        paper_bgcolor="#1B2444",
+        plot_bgcolor="#1B2444",
+        showlegend=False,
+        xaxis_title='Trip Duration (minutes)',
+        font=dict(color="white"),
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+
+    return fig
 
 def create_sidebar_radio():
     options = retrieve_tripNames()
@@ -341,6 +369,8 @@ def update_plots(filtered_data_json, selected_epoch):
     else:
         selected_epoch = datetime.datetime.now()
     
+    selected_time = selected_epoch.strftime('%H:%M')
+    
     day_start = selected_epoch.replace(hour=0, minute=0, second=0, microsecond=0)
 
     print(f'Selected Epoch: {selected_epoch}')
@@ -353,14 +383,14 @@ def update_plots(filtered_data_json, selected_epoch):
         #full_df = full_df[full_df['dt']  >= datetime.datetime.timestamp(day_start)]
         full_df = full_df[full_df['date'] == df.date.max()]
         print(df.head())
-        print(full_df.head())
 
         fig_main = plot_test_day_forecast(df, full_df)
+        fig1 = plot_historical_trend(df, selected_epoch)
     
     else:
         fig_main = empty_figure("plot-main")
-
-    fig1 = empty_figure("Card 1")
+        fig1 = empty_figure("Card 1")
+    
     fig2 = empty_figure("Card 2")
     fig3 = empty_figure("Card 3")
 
