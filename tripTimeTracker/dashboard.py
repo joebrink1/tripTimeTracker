@@ -169,6 +169,41 @@ def plot_historical_trend(df, selected_epoch):
 
     return fig
 
+def create_dow_heatmap(df, selected_epoch):
+    dow = selected_epoch.strftime('%A')
+    dow_df = df[df['dow'] == dow]
+
+    heatmap_df = dow_df.pivot_table(index='date', columns='time', values='tripTime')
+    heatmap_df = heatmap_df.sort_index()
+    heatmap_df = heatmap_df.reindex(sorted(heatmap_df.columns), axis=1)
+    heatmap_df = heatmap_df.interpolate(    axis=1, method="linear",    limit_direction="both")
+    heatmap_df = heatmap_df.fillna(method="ffill", axis=1).fillna(method="bfill", axis=1)
+
+    fig = go.Figure(data=go.Heatmap(    
+                        z=heatmap_df.values,    
+                        x=heatmap_df.columns,    
+                        y=heatmap_df.index,    
+                        colorscale="Jet",   
+                        colorbar=dict(
+                            title="Trip Time"
+                        )
+                    )
+            )
+
+    fig.update_layout(
+        title=f"Historical {dow} Traffic",
+        template="plotly_dark",
+        paper_bgcolor="#1B2444",
+        plot_bgcolor="#1B2444",
+        showlegend=False,
+        xaxis_title='Departure Time',
+        yaxis_title='Date',
+        font=dict(color="white"),
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+
+    return fig
+
 def create_sidebar_radio():
     options = retrieve_tripNames()
 
@@ -206,7 +241,7 @@ CONTENT_STYLE = {
 
 
 app = dash.Dash(__name__)
-server = app.server  # for deployment if needed
+server = app.server 
 
 
 app.layout = html.Div(
@@ -233,7 +268,7 @@ app.layout = html.Div(
                         {"label": "Custom Epoch", "value": "custom"}
                     ],
                     value="current",
-                    labelStyle={"display": "block", "padding": "10px"},
+                    labelStyle={"display": "block", "padding": "10px", "color": "white"},
                     inputStyle={"margin-right": "10px"},
                     style={"color": "white"}
                 ),
@@ -298,16 +333,6 @@ app.layout = html.Div(
                                 )
                             ]
                         ),
-                        html.Div(
-                            style={**CARD_STYLE, "flex": "1"},
-                            children=[
-                                dcc.Graph(
-                                    id="plot-3",
-                                    figure=empty_figure("Card 3"),
-                                    style={"height": "100%"}
-                                )
-                            ]
-                        ),
                     ]
                 )
             ]
@@ -357,7 +382,6 @@ def filter_data(mode, selected_epoch, n, selected_trip):
     Output("plot-main", "figure"),
     Output("plot-1", "figure"),
     Output("plot-2", "figure"),
-    Output("plot-3", "figure"),
     Input("filtered-data-store", "data"),
     State("epoch-input", "value")
 )
@@ -386,15 +410,14 @@ def update_plots(filtered_data_json, selected_epoch):
 
         fig_main = plot_test_day_forecast(df, full_df)
         fig1 = plot_historical_trend(df, selected_epoch)
+        fig2 = create_dow_heatmap(df, selected_epoch)
     
     else:
         fig_main = empty_figure("plot-main")
         fig1 = empty_figure("Card 1")
-    
-    fig2 = empty_figure("Card 2")
-    fig3 = empty_figure("Card 3")
+        fig2 = empty_figure("Card 2")
 
-    return fig_main, fig1, fig2, fig3
+    return fig_main, fig1, fig2
 
 
 
