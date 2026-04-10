@@ -1,6 +1,6 @@
 # tripTimeTracker
 
-A lightweight, Raspberry Pi optimized data collection, analysis, and visualization package for commute drive time.  This package can be set up to continuously pull drive time data for user specified routes.  Data is stored it in a local database, and displayed a real-time analytics dashboard over your local network.
+A lightweight, Raspberry Pi optimized data collection, analysis, and visualization package for commute drive time.  This package can be set up to continuously pull drive time data for user specified routes.  Data is stored in a local database, and displayed on a real time analytics dashboard over your local network.
 
 The LightGBM python library is leveraged for predictive Gradient Boosted Regression model training for forecasting future driving times based on current data and historical trends.
 
