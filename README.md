@@ -8,7 +8,7 @@ A lightweight, Raspberry Pi–optimized data collection, analysis, and visualiza
 
 ## Dashboard Preview
 
-![Dashboard Screenshot](docs/images/dashboard.png)
+<img width="944" height="492" alt="Image" src="https://github.com/user-attachments/assets/e33878d2-6fde-4b7e-9e28-4ef35589dd0e" />
 
 
 ---
